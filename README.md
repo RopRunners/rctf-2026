@@ -15,3 +15,7 @@
 - DevOps and RCTF platform: @gcc_makar, @FlexMaster420
 - Checksystem: [ForcAD](https://github.com/pomo-mondreganto/ForcAD)
 - VPS: [kaf42](https://kaf42.mephi.ru/)
+
+
+## Scoreboard
+<img width="1527" height="6739" alt="rctf digital mephi ru_scoreboard (2)" src="https://github.com/user-attachments/assets/df99d74e-a449-489e-92f4-5e99e1641c18" />
