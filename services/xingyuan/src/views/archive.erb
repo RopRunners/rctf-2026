@@ -1,0 +1,47 @@
+<%# 档案馆导入功能等产品经理最终确认需求，当前为临时占位实现 %>
+<section class="card">
+  <h1>Архив желаний 档案馆</h1>
+  <p class="muted">Сохрани историю желаний в хранилище или импортируй чужой экспорт по ссылке.</p>
+</section>
+
+<section class="card">
+  <h2>Сохранить мою историю</h2>
+  <form id="backup-form" class="stack">
+    <label>Личная заметка <input name="memo" autocomplete="off" placeholder="заметка, которую хранит только твой бэкап…"></label>
+    <button type="submit">Сохранить в архив ☁️</button>
+  </form>
+  <p id="backup-result" class="result"></p>
+  <p class="muted">Твоя публичная ссылка на экспорт: <a href="/export/<%= current_player['id'] %>.json">/export/<%= current_player['id'] %>.json</a></p>
+</section>
+
+<section class="card">
+  <h2>Импорт истории по ссылке</h2>
+  <form id="import-form" class="stack">
+    <label>URL экспорта <input name="url" autocomplete="off" placeholder="https://…/export/123.json"></label>
+    <button type="submit">Импортировать ✨</button>
+  </form>
+  <p id="import-result" class="result"></p>
+</section>
+
+<script>
+document.getElementById('backup-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const r = await fetch('/api/backup', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ memo: e.target.memo.value })
+  });
+  const d = await r.json();
+  document.getElementById('backup-result').textContent = d.ok ? '☁️ Сохранено!' : '💧 ' + (d.error || 'ошибка');
+});
+
+document.getElementById('import-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const r = await fetch('/api/import', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: e.target.url.value })
+  });
+  const d = await r.json();
+  const out = document.getElementById('import-result');
+  out.textContent = d.ok ? ('✨ Импортировано записей: ' + d.imported) : ('💧 ' + (d.error || 'ошибка'));
+});
+</script>

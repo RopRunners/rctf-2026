@@ -1,0 +1,18 @@
+; Write a short pattern into the heap so the post-run dump shows it.
+; Heap is at the fixed guest address 0x40000000.
+
+    mov r0, 0x40000000    ; heap base (fixed)
+    mov r1, 0x48           ; 'H'
+    stb [r0+0], r1
+    mov r1, 0x69           ; 'i'
+    stb [r0+1], r1
+    mov r1, 0x21           ; '!'
+    stb [r0+2], r1
+
+    mov r2, 0xdeadbeefcafef00d
+    st  [r0+8], r2         ; a 64-bit value at heap+8
+
+    ; fill heap[16..24) with 0xAA
+    mov r3, 0xaaaaaaaaaaaaaaaa
+    st  [r0+16], r3
+    halt r0

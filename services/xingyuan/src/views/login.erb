@@ -1,0 +1,10 @@
+<section class="card narrow">
+  <h1>С возвращением, мечтатель</h1>
+  <% if @error %><p class="error"><%= h @error %></p><% end %>
+  <form action="/login" method="post" class="stack">
+    <label>Логин <input name="username" autocomplete="off" required></label>
+    <label>Пароль <input name="password" type="password" required></label>
+    <button type="submit">Войти</button>
+  </form>
+  <p class="muted">Впервые здесь? <a href="/register">Создать аккаунт</a>.</p>
+</section>

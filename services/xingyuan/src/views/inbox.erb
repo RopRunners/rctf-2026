@@ -1,0 +1,94 @@
+<section class="card">
+  <h1>Входящие · <%= h current_player['username'] %> ✉️</h1>
+</section>
+
+<section class="card">
+  <h2>Отправить открытку</h2>
+  <form id="gift-form" class="stack">
+    <label>Кому (логин) <input name="to" autocomplete="off" required></label>
+    <label>Дизайн открытки
+      <select name="character_id">
+        <% @chars.each do |c| %>
+          <option value="<%= c['id'] %>"><%= h c['name'] %> (<%= '★' * c['rarity'].to_i %>)</option>
+        <% end %>
+      </select>
+    </label>
+    <label>Сообщение <textarea name="message" rows="2" placeholder="напиши что-нибудь приятное…"></textarea></label>
+    <label>Приложить самоцветы <input name="gems" type="number" min="0" value="0"></label>
+    <button type="submit">Отправить ✨</button>
+  </form>
+  <p id="gift-result" class="result"></p>
+</section>
+
+<%# 搜索框占位文案等文案组终审，搜索结果按发件人生肖排序（未实现） %>
+<section class="card">
+  <h2>Поиск по открыткам</h2>
+  <form id="search-form" class="inline-search">
+    <input name="q" autocomplete="off" placeholder="искать по сообщению…">
+    <button type="submit">Искать 🔍</button>
+  </form>
+  <ul id="search-results" class="search-results"></ul>
+</section>
+
+<section class="grid">
+  <% if @inbox.empty? %>
+    <p class="muted">Пока нет открыток. Попроси друга прислать!</p>
+  <% end %>
+  <% @inbox.each do |g| %>
+  <article class="card char rarity-<%= g['rarity'] %>">
+    <div class="char-art">
+      <img src="/img/<%= h g['image'] %>-icon.webp" alt="<%= h g['character_name'] %>"
+           onerror="this.style.visibility='hidden'">
+    </div>
+    <h3><%= h g['character_name'] %></h3>
+    <p class="muted">от <strong><%= h g['from_user'] %></strong><% if g['gems'].to_i > 0 %> · 🎁 <%= h g['gems'] %> самоцветов<% end %></p>
+    <blockquote class="card-note"><%= h g['message'] %></blockquote>
+  </article>
+  <% end %>
+</section>
+
+<script>
+document.getElementById('gift-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = e.target;
+  const body = {
+    to: f.to.value,
+    character_id: Number(f.character_id.value),
+    message: f.message.value,
+    gems: Number(f.gems.value)
+  };
+  const r = await fetch('/api/gift', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const d = await r.json();
+  const out = document.getElementById('gift-result');
+  if (d.ok) {
+    out.textContent = '✨ Открытка отправлена!';
+    setTimeout(() => location.reload(), 600);
+  } else {
+    out.textContent = '💧 ' + (d.error || 'не удалось отправить');
+  }
+});
+
+document.getElementById('search-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const q = e.target.q.value;
+  const list = document.getElementById('search-results');
+  list.textContent = '';
+  const r = await fetch('/api/inbox/search?q=' + encodeURIComponent(q));
+  const d = await r.json();
+  if (d.ok && d.results.length) {
+    for (const row of d.results) {
+      const li = document.createElement('li');
+      li.textContent = row.message;
+      list.appendChild(li);
+    }
+  } else {
+    const li = document.createElement('li');
+    li.className = 'muted';
+    li.textContent = 'Ничего не найдено.';
+    list.appendChild(li);
+  }
+});
+</script>

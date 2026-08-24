@@ -1,0 +1,10 @@
+; MALICIOUS: try to write one row-length past the DB region to reach
+; the neighbouring row / db control structures in the shared shm.
+; The bounds check must turn this into a trapped OOB, not an escape.
+
+    mov r0, 0x20000000    ; DB base
+    add r0, 128           ; DB region is only 128 bytes -> now out of range
+    mov r1, 0xdeadbeef
+    st  [r0], r1          ; <-- must TRAP (out-of-bounds), never write
+    out r1                ; (not reached)
+    halt r1

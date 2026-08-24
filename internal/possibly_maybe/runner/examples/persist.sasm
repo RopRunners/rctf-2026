@@ -1,0 +1,17 @@
+; Increment a counter stored in the DB row. Run once with `new` to start
+; it, then repeatedly with `reuse <key>` to watch it climb across runs --
+; the row (and its data) survive because the key maps back to it.
+;
+;   ./svm new            < persist.sasm   # -> counter = 1, prints the key
+;   ./svm reuse <key>    < persist.sasm   # -> counter = 2
+;   ./svm reuse <key>    < persist.sasm   # -> counter = 3 ...
+;
+; The row's capability key is also sitting at the start of the heap
+; (0x40000000); the guest could read it from there if it wanted to.
+
+    mov r0, 0x20000000    ; DB row (fixed address)
+    ld  r1, [r0]          ; load current counter (0 on a fresh row)
+    add r1, 1             ; ++
+    st  [r0], r1          ; persist it back into the row
+    out r1                ; print the new count
+    halt r1

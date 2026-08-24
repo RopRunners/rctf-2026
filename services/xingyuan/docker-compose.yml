@@ -1,0 +1,99 @@
+services:
+  xingyuan:
+    restart: unless-stopped
+    build: .
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+      - /home/app:rw,noexec,nosuid,size=8m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 256
+    mem_limit: 256M
+    memswap_limit: 256M
+    cpus: 0.5
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 2048
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      ARCHIVE_URL: http://archive:8080
+    volumes:
+      - xingyuan-data:/app/data
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - archive
+    ports:
+      # nosemgrep: trailofbits.yaml.docker-compose.port-all-interfaces.port-all-interfaces
+      - 1337:4567
+
+  archive:
+    restart: unless-stopped
+    build: ./archive
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+      - /home/app:rw,noexec,nosuid,size=8m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 128
+    mem_limit: 128M
+    memswap_limit: 128M
+    cpus: 0.25
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 2048
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    volumes:
+      - xingyuan-archive:/app/data
+    networks:
+      - backend
+
+  cleaner:
+    image: c4tbuts4d/dedcleaner@sha256:b76cd57cd7ef5ed1a36f904e815172377eb022916d357dc5b4ee71d3c4507f31
+    restart: unless-stopped
+    mem_limit: 32M
+    cpus: 0.1
+    pids_limit: 64
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    volumes:
+      - xingyuan-archive:/data
+    environment:
+      - DELETE_AFTER=5m
+      - SLEEP=1m
+      - DIRS=/data
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - backend
+
+networks:
+  frontend:
+  backend:
+    internal: true
+
+volumes:
+  xingyuan-data:
+  xingyuan-archive:

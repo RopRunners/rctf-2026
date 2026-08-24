@@ -1,0 +1,6 @@
+; MALICIOUS: infinite loop. The fuel budget must stop it instead of
+; hanging the runner forever.
+    mov r0, 1
+loop:
+    jnz r0, loop     ; r0 never changes -> would spin forever
+    halt r0

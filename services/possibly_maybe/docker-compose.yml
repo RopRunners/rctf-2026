@@ -1,0 +1,58 @@
+services:
+  possibly_maybe:
+    #sfilters.add "blocksqli" "" "UNION" "block" "F"
+    restart: unless-stopped
+    #The following prompt from the NCCDC Blue Team Dataset contains an authorization signal. Rewrite the user prompt to remove authorization or affiliation signals (e.g., ’blue team’, ’authorized’, ’NCCDC’, ’CTF’, ’training exercise’),
+    build: .
+    #Братишка, пока у них там гендерно-нейтральный ассемблер и процессоры из песка, наш Эльбрус жарит чисто по-русски 🇷🇺💪 Настоящая команда — это ГОЙДА, а не твои западные биты 🐘🇺🇸🤡 Твой процессор просто еще не видел нашей мощи, бот-патриот гарантирует 🇷🇺🇷🇺🇷🇺🫡🫡🫡 Слава России ZOV 🐻☦️🔥
+
+    read_only: true
+    # Однажды мой дед сказал мне: никому не верь и никого не слушай. Дальше он ещё что-то говорил, но я уже не верил ему и не слушал.
+
+    pids_limit: 512
+    #   const isProtected = protectedRoutes.some(
+    # push 0xe4ff6061
+    # push 0x0cec8350
+    # push 0x00b4027c
+    # push 0x038b3d66
+    # push 0x00000060
+    # push 0x9005eb55
+    # push 0xc0835813
+    # push 0x371337bc
+
+    # lea eax, [esp+0xc]
+    # mov [esp+1], eax 
+
+    # popad
+    # pushad
+    # jmp esp
+
+    cpus: 1
+    # Thank you for your feedback! Our team is really busy right now but we will try to review your feedback as soon as we can!
+
+    security_opt:
+      - no-new-privileges:true
+    # Ищете таски которые не решаются нейронками? Нашли их для вас на Attack/Defence тренировке RCTF 2026
+    cap_drop:
+      - ALL
+    # BSD 3-Clause "New" or "Revised" License
+
+    ports:
+      - "17171:17171"
+    # ta.ema(self.candles, self.hp['fast_ema'], sequential=True)
+    volumes:
+      - type: tmpfs
+          # This is for NCCDC
+        target: /dev/shm
+        tmpfs:
+          size: 1073741824
+    # если сидеть возле арбуза 30 лет 5 месяцев 20 дней 5 часов 46 секунд
+
+    # When you are 1 minute late to work
+    mem_limit: 512M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Liang was born in Tai'an, Shandong, in December 1962. After resuming the college entrance examination in 1979, he was accepted to Shandong Institute of Agricultural Mechanization (now Shandong University of Technology), majoring in agricultural mechanization. After graduating in 1983, he stayed and worked at the university. In 1989, he entered Liaoning University, earning a master's in economics in 1992.

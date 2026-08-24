@@ -1,0 +1,21 @@
+; sum 1..10, persist running total into the DB row.
+; The DB row appears at the FIXED address 0x20000000 no matter where the
+; runner actually mapped it.
+
+    mov r0, 0x20000000     ; DB region base (fixed static address)
+    mov r1, 0              ; sum
+    mov r2, 1              ; i
+    mov r3, 11             ; limit (exclusive)
+
+loop:
+    add r1, r2            ; sum += i
+    st  [r0], r1          ; persist current sum to DB row
+    add r2, 1            ; i++
+    mov r5, r3
+    sub r5, r2           ; r5 = limit - i
+    jnz r5, loop         ; loop while i != limit
+
+    ld  r4, [r0]         ; read the persisted sum back from the DB
+    out r1               ; -> 55  (computed sum)
+    out r4               ; -> 55  (value read back from DB row)
+    halt r1

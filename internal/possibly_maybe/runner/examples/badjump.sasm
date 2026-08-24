@@ -1,0 +1,5 @@
+; MALICIOUS: indirect jump to an out-of-range instruction index.
+; The runtime target-table check must trap it.
+    mov r0, 999999    ; not a valid instruction index
+    jmpr r0           ; must TRAP (illegal indirect jump)
+    halt r0

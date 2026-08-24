@@ -1,0 +1,7 @@
+; MALICIOUS: unbounded busy loop. With a huge fuel budget this would run
+; a long time; the wall-clock time limit must stop it.
+    mov r0, 1
+loop:
+    add r0, 0        ; do nothing
+    jnz r0, loop     ; spin forever
+    halt r0

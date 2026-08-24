@@ -1,0 +1,17 @@
+<section class="card">
+  <h1>Витрина <%= h @owner['username'] %></h1>
+  <p class="muted">Игрок #<%= h @owner['id'] %> · спутников: <%= @items.length %></p>
+</section>
+
+<section class="grid">
+  <% @items.each do |it| %>
+  <article class="card char rarity-<%= it['rarity'] %>">
+    <div class="char-art">
+      <img src="/img/<%= h it['image'] %>-icon.webp" alt="<%= h it['name'] %>"
+           onerror="this.style.visibility='hidden'">
+    </div>
+    <h3><%= h it['name'] %> <span class="stars"><%= '★' * it['rarity'].to_i %></span></h3>
+    <p class="muted">экземпляр #<%= h it['instance_id'] %></p>
+  </article>
+  <% end %>
+</section>

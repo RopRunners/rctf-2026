@@ -1,0 +1,19 @@
+; Demonstrate validated call/ret (bounded shadow stack) and a
+; table-validated indirect jump (jmpr via @label).
+
+    mov r2, 21
+    call dbl            ; r2 -> 42
+    out r2
+
+    mov r0, @done       ; @label yields the instruction index of `done`
+    jmpr r0             ; indirect jump, validated against the target table
+
+    mov r1, 7           ; (skipped over by the jmpr above)
+done:
+    mov r1, 1
+    out r1             ; -> 1
+    halt r2            ; exit value 42
+
+dbl:
+    add r2, r2         ; r2 *= 2
+    ret

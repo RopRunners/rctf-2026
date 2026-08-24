@@ -1,0 +1,11 @@
+# This file IS what the celery workers install. rctf-deploy ships this whole
+# directory into rctf-forcad/checkers/ at deploy time, replacing whatever that
+# repo carried, so there is no longer a copy to keep in sync - which is just as
+# well, since the two had already drifted and nobody noticed.
+#
+# Pin anything the game must run against a known version: CI validates checkers
+# against this file, and the workers install this same file.
+checklib==0.7.0
+# The possibly_maybe checker speaks to the service over pwntools tubes. Left
+# unpinned by request. No mirroring step: this file ships as-is.
+pwntools

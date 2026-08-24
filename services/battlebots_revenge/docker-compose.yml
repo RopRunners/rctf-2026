@@ -1,0 +1,60 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  battlebots:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "55555:55555"
+
+    read_only: true
+    volumes:
+      - battlebots_chats:/tmp/chats
+
+    pids_limit: 256
+    mem_limit: 512M
+    cpus: 0.5
+
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+    logging: *logging
+
+    restart: unless-stopped
+
+
+  cleaner:
+    image: c4tbuts4d/dedcleaner@sha256:b76cd57cd7ef5ed1a36f904e815172377eb022916d357dc5b4ee71d3c4507f31
+
+    volumes:
+      - battlebots_chats:/chats
+
+    environment:
+      - DELETE_AFTER=5m
+      - SLEEP=1m
+      - DIRS=/chats
+
+    mem_limit: 32M
+    cpus: 0.1
+    pids_limit: 64
+
+    security_opt:
+      - no-new-privileges:true
+
+    logging: *logging
+
+    restart: unless-stopped
+
+volumes:
+  battlebots_chats:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: "size=32m"

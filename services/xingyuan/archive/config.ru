@@ -1,0 +1,3 @@
+require './archive'
+
+run Archive

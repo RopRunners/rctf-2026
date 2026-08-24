@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<!-- 前端构建号 7742·星愿·勿缓存本页超过一炷香，缓存组的规矩 -->
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Xingyuan 星愿 ✨</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-col">
+      <a class="brand" href="/">Xingyuan 星愿 <span>✨</span></a>
+      <% if current_player %>
+        <span class="gem-balance"><strong id="gem-count"><%= h current_player['gems'] %></strong><i class="gem-icon"></i></span>
+      <% end %>
+    </div>
+    <nav>
+      <a href="/banner">Баннер</a>
+      <% if session[:pid] %>
+        <a href="/me">Моя шкатулка</a>
+        <a href="/inbox">Входящие</a>
+        <a href="/archive">Архив</a>
+        <form action="/logout" method="post" class="inline"><button type="submit">Выйти</button></form>
+      <% else %>
+        <a href="/login">Вход</a>
+        <a href="/register">Регистрация</a>
+      <% end %>
+    </nav>
+  </header>
+  <main class="wrap">
+    <%= yield %>
+  </main>
+</body>
+</html>

@@ -1,0 +1,10 @@
+<section class="card narrow">
+  <div class="char-art rarity-<%= @card['rarity'] %> big">
+    <img src="/img/<%= h @card['image'] %>-splash.webp" alt="<%= h @card['name'] %>"
+         onerror="this.style.visibility='hidden'">
+  </div>
+  <h1><%= h @card['name'] %> <span class="stars"><%= '★' * @card['rarity'].to_i %></span></h1>
+  <p class="muted">карточка спутника ✨</p>
+  <blockquote class="card-note"><%= h @card['private_note'] %></blockquote>
+  <p class="muted"><a href="/">← back to Xingyuan</a></p>
+</section>

@@ -1,0 +1,127 @@
+<section class="card banner-hero">
+  <h1>Звёздный баннер</h1>
+
+  <% if @featured %>
+  <div class="char-art rarity-5 big">
+    <img src="/img/<%= h @featured[:image] %>-splash.webp" alt="<%= h @featured[:name] %>"
+         onerror="this.style.visibility='hidden'">
+  </div>
+  <p class="stars">★★★★★ <%= h @featured[:name] %></p>
+  <% end %>
+
+  <button id="pull" class="cta wish-btn">Крутка ×1 · <%= Xingyuan::PULL_COST %> <i class="gem-icon"></i></button>
+  <div id="result" class="result"></div>
+</section>
+
+<div id="cine" aria-hidden="true">
+  <div class="cine-stage">
+    <video class="cine-video" playsinline muted preload="none"><track kind="captions"></video>
+    <div class="cine-veil"></div>
+  </div>
+  <div class="reveal">
+    <div class="rv-bg"></div>
+    <div class="rv-art"><img alt=""></div>
+    <div class="rv-info">
+      <div class="rv-stars"></div>
+      <div class="rv-name"></div>
+      <p class="rv-lore"></p>
+    </div>
+    <div class="rv-hint">нажми, чтобы продолжить</div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var cine = document.getElementById('cine');
+  var pull = document.getElementById('pull');
+  var gemCount = document.getElementById('gem-count');
+  var video = cine.querySelector('.cine-video');
+  var rvImg = cine.querySelector('.rv-art img');
+  var rvStars = cine.querySelector('.rv-stars');
+  var rvName = cine.querySelector('.rv-name');
+  var rvLore = cine.querySelector('.rv-lore');
+  var clips = { 3: '/videos/3star-single.mp4', 4: '/videos/4star-single.mp4', 5: '/videos/5star-single.mp4' };
+  var colors = { 3: '#aac8f1', 4: '#c44dda', 5: '#f9aa02' };
+  var lore = <%= Xingyuan::CATALOG.to_h { |c| [c[:name], c[:lore]] }.to_json %>;
+  var timers = [];
+  var phase = '';
+
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+  function setPhase(p) { phase = p; cine.className = 'on ' + p; }
+
+  function reveal() {
+    if (phase === 'p-reveal') return;
+    clearTimers();
+    try { video.pause(); } catch (e) {}
+    setPhase('p-reveal');
+  }
+
+  function close() {
+    clearTimers();
+    try { video.pause(); video.removeAttribute('src'); video.load(); } catch (e) {}
+    cine.className = '';
+    phase = '';
+    document.body.classList.remove('noscroll');
+    pull.disabled = false;
+  }
+
+  function play(d) {
+    var rarity = Number(d.rarity) || 3;
+    var slug = (d.image || d.name || '').toLowerCase();
+    cine.style.setProperty('--rc', colors[rarity] || colors[3]);
+    rvImg.style.visibility = 'visible';
+    rvImg.onerror = function () { rvImg.style.visibility = 'hidden'; };
+    rvImg.src = '/img/' + slug + '-splash.webp';
+    rvStars.textContent = '★'.repeat(rarity);
+    rvName.textContent = d.name || '';
+    rvLore.textContent = lore[d.name] || '';
+
+    document.body.classList.add('noscroll');
+    pull.disabled = true;
+    setPhase('p-load');
+
+    var started = false;
+    var go = function () {
+      if (started) return;
+      started = true;
+      setPhase('p-video');
+      var p = video.play();
+      if (p && p.catch) p.catch(function () { reveal(); });
+    };
+
+    video.onerror = function () { reveal(); };
+    video.oncanplay = go;
+    video.onended = reveal;
+    video.src = clips[rarity] || clips[3];
+    video.currentTime = 0;
+    video.load();
+
+    timers.push(setTimeout(go, 2500));
+    timers.push(setTimeout(reveal, 12000));
+  }
+
+  cine.addEventListener('click', function () {
+    if (phase === 'p-reveal') close(); else reveal();
+  });
+
+  pull.addEventListener('click', async function () {
+    pull.disabled = true;
+    var box = document.getElementById('result');
+    box.textContent = '';
+    try {
+      var r = await fetch('/api/pull', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+      var d = await r.json();
+      if (d.ok) {
+        if (typeof d.gems === 'number') gemCount.textContent = d.gems;
+        play(d);
+      } else {
+        pull.disabled = false;
+        box.textContent = '💧 ' + (d.error || 'крутка не удалась');
+      }
+    } catch (e) {
+      pull.disabled = false;
+      box.textContent = '💧 звёзды недосягаемы';
+    }
+  });
+})();
+</script>

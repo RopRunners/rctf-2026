@@ -1,0 +1,19 @@
+<section class="hero">
+  <h1>Загадай желание на звезду ✨</h1>
+  <p>Призывай очаровательных спутников, собирай шкатулку мечты и хвастайся ей.</p>
+  <a class="cta" href="/banner">К баннеру →</a>
+</section>
+
+<% if @featured %>
+<section class="featured card">
+  <div class="char-art rarity-<%= @featured[:rarity] %>">
+    <img src="/img/<%= h @featured[:image] %>-splash.webp" alt="<%= h @featured[:name] %>"
+         onerror="this.style.visibility='hidden'">
+  </div>
+  <div class="featured-body">
+    <span class="stars">★★★★★</span>
+    <h2><%= h @featured[:name] %></h2>
+    <p><%= h @featured[:lore] %></p>
+  </div>
+</section>
+<% end %>

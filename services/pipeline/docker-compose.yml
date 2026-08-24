@@ -1,0 +1,115 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  nginx:
+    image: nginx@sha256:b5a9a3cfc86b81dd6f1458d53f2ad2b559cc255653d2efd6cacee5636bf2066f
+    restart: unless-stopped
+    mem_limit: 64m
+    cpus: 0.5
+    pids_limit: 100
+    logging: *logging
+    ports:
+      - "6000:6000"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/server.pem:/etc/nginx/certs/server.pem:ro
+      - ./nginx/server.key:/etc/nginx/certs/server.key:ro
+      - ./nginx/ca_checker.pem:/etc/nginx/certs/ca_checker.pem:ro
+    tmpfs:
+      - /tmp:size=16m
+      - /var/run:size=4m
+      - /var/cache/nginx:size=32m
+    networks:
+      - pipeline
+    depends_on:
+      - zot
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+
+  zot:
+    image: ghcr.io/project-zot/zot@sha256:6f7bf2b8e43437c7c3a121bc80214845c85f27321e66f2ff4be6bf4220775fd7
+    restart: unless-stopped
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 100
+    logging: *logging
+    volumes:
+      - ./zot/config.json:/etc/zot/config.json:ro
+      - pipeline_zot:/var/lib/registry
+    tmpfs:
+      - /tmp:size=64m
+    networks:
+      - pipeline
+    ports:
+      - "127.0.0.1:6001:5000"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  watchtower:
+    build: ./watchtower
+    restart: unless-stopped
+    mem_limit: 128m
+    cpus: 0.25
+    pids_limit: 100
+    logging: *logging
+    env_file:
+      - .env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+    networks:
+      - pipeline
+    depends_on:
+      - zot
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  cleaner:
+    image: c4tbuts4d/dedcleaner@sha256:b76cd57cd7ef5ed1a36f904e815172377eb022916d357dc5b4ee71d3c4507f31
+    restart: unless-stopped
+    mem_limit: 32m
+    cpus: 0.1
+    pids_limit: 64
+    logging: *logging
+    volumes:
+      - pipeline_app:/data
+    environment:
+      - DELETE_AFTER=5m
+      - SLEEP=1m
+      - DIRS=/data
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  pipeline:
+    name: pipeline
+    driver: bridge
+
+volumes:
+ pipeline_zot:
+   name: pipeline_zot
+   driver_opts:
+     type: tmpfs
+     device: tmpfs
+     o: "size=64m"
+ pipeline_app:
+   name: pipeline_app
+   driver_opts:
+     type: tmpfs
+     device: tmpfs
+     o: "size=32m"

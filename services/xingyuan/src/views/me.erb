@@ -1,0 +1,56 @@
+<section class="card">
+  <h1>Привет, <%= h current_player['username'] %> ♡</h1>
+  <p class="muted">
+    Твоя публичная витрина: <a href="/u/<%= current_player['id'] %>">/u/<%= current_player['id'] %></a>
+  </p>
+</section>
+
+<section class="grid">
+  <% @items.each do |it| %>
+  <article class="card char rarity-<%= it['rarity'] %>">
+    <div class="char-art">
+      <img src="/img/<%= h it['image'] %>-icon.webp" alt="<%= h it['name'] %>"
+           onerror="this.style.visibility='hidden'">
+    </div>
+    <h3><%= h it['name'] %> <span class="stars"><%= '★' * it['rarity'].to_i %></span></h3>
+    <form class="note-form" data-id="<%= it['instance_id'] %>">
+      <label class="muted">Личная заметка</label>
+      <textarea rows="2" placeholder="это можешь прочитать только ты…"></textarea>
+      <button type="submit">Сохранить</button>
+    </form>
+    <button class="share-btn" data-id="<%= it['instance_id'] %>">Поделиться карточкой</button>
+    <p class="share-link muted"></p>
+  </article>
+  <% end %>
+</section>
+
+<script>
+document.querySelectorAll('.note-form').forEach(f => {
+  const id = f.dataset.id;
+  fetch('/api/inventory/' + id + '/note').then(r => r.json()).then(d => {
+    if (d.ok) f.querySelector('textarea').value = d.note;
+  });
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const note = f.querySelector('textarea').value;
+    await fetch('/api/inventory/' + id + '/note', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note })
+    });
+  });
+});
+
+document.querySelectorAll('.share-btn').forEach(b => {
+  b.addEventListener('click', async () => {
+    const r = await fetch('/api/inventory/' + b.dataset.id + '/share', { method: 'POST' });
+    const d = await r.json();
+    const out = b.nextElementSibling;
+    if (d.ok) {
+      const link = location.origin + d.url;
+      out.innerHTML = 'Ссылка: <a href="' + d.url + '">' + link + '</a>';
+    } else {
+      out.textContent = d.error || 'не удалось поделиться';
+    }
+  });
+});
+</script>
