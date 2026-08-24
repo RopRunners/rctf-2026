@@ -18,4 +18,6 @@
 
 
 ## Scoreboard
-<img width="1527" height="6739" alt="rctf digital mephi ru_scoreboard (2)" src="https://github.com/user-attachments/assets/df99d74e-a449-489e-92f4-5e99e1641c18" />
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/df99d74e-a449-489e-92f4-5e99e1641c18" alt="rctf digital mephi ru_scoreboard" width="100%">
+</p>
